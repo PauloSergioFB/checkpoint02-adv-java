@@ -4,14 +4,13 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,14 +30,15 @@ public class Mission {
     @Column(name = "DESCRIPTION", nullable = false)
     private @Setter @Getter String description;
 
-    @Column(name = "LOCATION", length = 100, nullable = false)
+    @Column(name = "LOCATION", length = 155, nullable = false)
     private @Setter @Getter String location;
 
     @Column(name = "SCHEDULED_DATA", nullable = false)
     private @Setter @Getter LocalDate scheduledData;
 
-    @OneToMany(mappedBy = "drone", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private @Setter @Getter Drone droneId;
+    @ManyToOne
+    @JoinColumn(name = "DRONE_ID")
+    private @Setter @Getter Drone drone;
 
     @Override
     public int hashCode() {
@@ -59,7 +59,7 @@ public class Mission {
                 ", description=" + description +
                 ", location=" + location +
                 ", scheduledData=" + scheduledData +
-                ", droneId=" + droneId +
+                ", drone=" + drone +
                 "}";
     }
 

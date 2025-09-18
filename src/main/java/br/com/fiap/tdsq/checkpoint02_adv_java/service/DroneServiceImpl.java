@@ -1,46 +1,45 @@
 package br.com.fiap.tdsq.checkpoint02_adv_java.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import br.com.fiap.tdsq.checkpoint02_adv_java.domainmodel.Drone;
 import br.com.fiap.tdsq.checkpoint02_adv_java.domainmodel.repositories.DroneRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class DroneServiceImpl implements DroneService {
+public class DroneServiceImpl implements DroneService<Drone, UUID> {
 
     private final DroneRepository droneRepository;
 
     @Override
-    public List findAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+    public List<Drone> findAll() {
+        return new ArrayList<>(droneRepository.findAll());
     }
 
     @Override
-    public Object findById(Object id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findById'");
+    public Optional<Drone> findById(UUID id) {
+        return droneRepository.findById(id);
     }
 
     @Override
-    public Object create(Object drone) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'create'");
+    public Drone create(Drone drone) {
+        return droneRepository.save(drone);
     }
 
     @Override
-    public void removeById(Object id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'removeById'");
+    public void removeById(UUID id) {
+        droneRepository.deleteById(id);
     }
 
     @Override
-    public boolean existsById(Object id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'existsById'");
+    public boolean existsById(UUID id) {
+        return droneRepository.existsById(id);
     }
 
 }
