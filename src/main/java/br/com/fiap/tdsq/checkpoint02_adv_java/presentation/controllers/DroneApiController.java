@@ -1,4 +1,4 @@
-package br.com.fiap.tdsq.checkpoint02_adv_java.presentation;
+package br.com.fiap.tdsq.checkpoint02_adv_java.presentation.controllers;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,14 +21,24 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/drones")
-public class droneApiController {
+@RequestMapping("/api/v1/drones")
+public class DroneApiController {
 
     private final DroneService<Drone, UUID> droneService;
 
     @GetMapping
     public ResponseEntity<List<Drone>> findAll() {
         return ResponseEntity.ok(droneService.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Drone> findById(@PathVariable("id") UUID id) {
+        Drone drone = droneService.findById(id).orElse(null);
+        if (drone == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone not found");
+        }
+
+        return ResponseEntity.ok(drone);
     }
 
     @PostMapping
