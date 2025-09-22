@@ -11,10 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import br.com.fiap.tdsq.checkpoint02_adv_java.domainmodel.Mission;
+import br.com.fiap.tdsq.checkpoint02_adv_java.presentation.controllers.transferObjects.MissionDTO;
 import br.com.fiap.tdsq.checkpoint02_adv_java.service.MissionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -25,24 +26,24 @@ public class MissionApiController {
     private final MissionService<Mission, UUID> missionService;
 
     @GetMapping
-    public ResponseEntity<List<Mission>> findAll() {
-        return ResponseEntity.ok(missionService.findAll());
+    public ResponseEntity<List<MissionDTO>> findAll() {
+        return ResponseEntity.ok(missionService.findAll()
+                .stream()
+                .map(MissionDTO::fromEntity)
+                .toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Mission> findById(@PathVariable("id") UUID id) {
-        Mission mission = missionService.findById(id).orElse(null);
-        if (mission == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Mission not found");
-        }
-
-        return ResponseEntity.ok(mission);
+    public ResponseEntity<MissionDTO> findById(@PathVariable UUID id) {
+        return missionService.findById(id)
+                .map(mission -> ResponseEntity.ok(MissionDTO.fromEntity(mission)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Mission> save(@RequestBody Mission mission) {
-        Mission newMission = missionService.create(mission);
-        return new ResponseEntity<>(newMission, HttpStatus.CREATED);
+    public ResponseEntity<MissionDTO> save(@Valid @RequestBody MissionDTO missionDTO) {
+        Mission newMission = missionService.create(MissionDTO.toEntity(missionDTO));
+        return new ResponseEntity<>(MissionDTO.fromEntity(newMission), HttpStatus.CREATED);
     }
 
 }

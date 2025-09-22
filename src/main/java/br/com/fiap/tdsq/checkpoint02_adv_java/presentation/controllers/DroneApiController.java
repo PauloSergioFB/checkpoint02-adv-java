@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.com.fiap.tdsq.checkpoint02_adv_java.domainmodel.Drone;
+import br.com.fiap.tdsq.checkpoint02_adv_java.presentation.controllers.transferObjects.DroneDTO;
 import br.com.fiap.tdsq.checkpoint02_adv_java.service.DroneService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -27,34 +29,37 @@ public class DroneApiController {
     private final DroneService<Drone, UUID> droneService;
 
     @GetMapping
-    public ResponseEntity<List<Drone>> findAll() {
-        return ResponseEntity.ok(droneService.findAll());
+    public ResponseEntity<List<DroneDTO>> findAll() {
+        return ResponseEntity.ok(droneService.findAll()
+                .stream()
+                .map(DroneDTO::fromEntity)
+                .toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Drone> findById(@PathVariable("id") UUID id) {
-        Drone drone = droneService.findById(id).orElse(null);
-        if (drone == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone not found");
-        }
-
-        return ResponseEntity.ok(drone);
+    public ResponseEntity<DroneDTO> findById(@PathVariable UUID id) {
+        return droneService.findById(id)
+                .map(drone -> ResponseEntity.ok(DroneDTO.fromEntity(drone)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Drone> save(@RequestBody Drone drone) {
-        Drone newDrone = droneService.create(drone);
-        return new ResponseEntity<>(newDrone, HttpStatus.CREATED);
+    public ResponseEntity<DroneDTO> save(@Valid @RequestBody DroneDTO droneDTO) {
+        Drone newDrone = droneService.create(DroneDTO.toEntity(droneDTO));
+        return new ResponseEntity<>(DroneDTO.fromEntity(newDrone), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Drone> update(@PathVariable("id") UUID id, @RequestBody Drone drone) {
+    public ResponseEntity<DroneDTO> update(@PathVariable UUID id, @Valid @RequestBody DroneDTO droneDTO) {
         if (!droneService.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone not found");
         }
 
+        Drone drone = DroneDTO.toEntity(droneDTO);
         drone.setId(id);
-        return new ResponseEntity<>(droneService.create(drone), HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                DroneDTO.fromEntity(droneService.create(drone)),
+                HttpStatus.CREATED);
     }
 
     @DeleteMapping

@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,6 +23,7 @@ import lombok.Setter;
 @Table(name = "DRONES")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Drone {
 
     @Id
@@ -34,7 +36,7 @@ public class Drone {
     @Column(name = "BATTERY_CAPACITY", nullable = false)
     private @Setter @Getter int batteryCapacity;
 
-    @Column(name = "STATUS", length = 55, nullable = false)
+    @Column(name = "STATUS", length = 20, nullable = false)
     private @Setter @Getter String status;
 
     @OneToMany(mappedBy = "drone", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
