@@ -22,7 +22,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/missions")
@@ -49,9 +51,16 @@ public class MissionApiController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Cadastrar nova missão", method = "POST")
     @PostMapping
     public ResponseEntity<MissionDTO> save(@Valid @RequestBody MissionDTO missionDTO) {
-        Mission newMission = missionService.create(MissionDTO.toEntity(missionDTO));
+        UUID droneId = missionDTO.getDroneId();
+        if (droneId != null && !droneService.existsById(droneId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone not found");
+        }
+
+        Drone drone = droneService.findById(missionDTO.getDroneId()).orElse(null);
+        Mission newMission = missionService.create(MissionDTO.toEntity(missionDTO, drone));
         return new ResponseEntity<>(MissionDTO.fromEntity(newMission), HttpStatus.CREATED);
     }
 
