@@ -18,16 +18,20 @@ import org.springframework.web.server.ResponseStatusException;
 import br.com.fiap.tdsq.checkpoint02_adv_java.domainmodel.Drone;
 import br.com.fiap.tdsq.checkpoint02_adv_java.presentation.controllers.transferObjects.DroneDTO;
 import br.com.fiap.tdsq.checkpoint02_adv_java.service.DroneService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/drones")
+@Tag(name = "Drones", description = "Operações de gerenciamento de drones: cadastro, consulta, atualização e remoção")
 public class DroneApiController {
 
     private final DroneService<Drone, UUID> droneService;
 
+    @Operation(summary = "Listar todos os drones", method = "GET")
     @GetMapping
     public ResponseEntity<List<DroneDTO>> findAll() {
         return ResponseEntity.ok(droneService.findAll()
@@ -36,6 +40,7 @@ public class DroneApiController {
                 .toList());
     }
 
+    @Operation(summary = "Buscar drone por ID", method = "GET")
     @GetMapping("/{id}")
     public ResponseEntity<DroneDTO> findById(@PathVariable UUID id) {
         return droneService.findById(id)
@@ -43,12 +48,14 @@ public class DroneApiController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Cadastrar novo drone", method = "POST")
     @PostMapping
     public ResponseEntity<DroneDTO> save(@Valid @RequestBody DroneDTO droneDTO) {
         Drone newDrone = droneService.create(DroneDTO.toEntity(droneDTO));
         return new ResponseEntity<>(DroneDTO.fromEntity(newDrone), HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Atualizar drone existente", method = "PUT")
     @PutMapping("/{id}")
     public ResponseEntity<DroneDTO> update(@PathVariable UUID id, @Valid @RequestBody DroneDTO droneDTO) {
         if (!droneService.existsById(id)) {
@@ -62,6 +69,7 @@ public class DroneApiController {
                 HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Remover drone por ID", method = "DELETE")
     @DeleteMapping
     public ResponseEntity<Void> deleteById(@RequestBody UUID id) {
         if (!droneService.existsById(id)) {
