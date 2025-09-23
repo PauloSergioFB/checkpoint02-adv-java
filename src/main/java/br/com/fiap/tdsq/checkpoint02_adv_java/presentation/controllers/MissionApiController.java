@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MissionApiController {
 
     private final MissionService<Mission, UUID> missionService;
+
     private final DroneService<Drone, UUID> droneService;
 
     @Operation(summary = "Listar todas as missões", method = "GET")

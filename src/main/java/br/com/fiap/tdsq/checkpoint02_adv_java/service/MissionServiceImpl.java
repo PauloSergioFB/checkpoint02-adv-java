@@ -28,6 +28,16 @@ public class MissionServiceImpl implements MissionService<Mission, UUID> {
     }
 
     @Override
+    public List<Mission> findByDroneId(UUID droneId) {
+        return missionRepository.findByDroneId(droneId);
+    }
+
+    @Override
+    public List<Mission> findFutureMissionsByDroneId(UUID droneId) {
+        return missionRepository.findFutureMissionsByDroneId(droneId);
+    }
+
+    @Override
     public Mission create(Mission mission) {
         return missionRepository.save(mission);
     }

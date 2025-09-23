@@ -16,8 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.com.fiap.tdsq.checkpoint02_adv_java.domainmodel.Drone;
+import br.com.fiap.tdsq.checkpoint02_adv_java.domainmodel.Mission;
 import br.com.fiap.tdsq.checkpoint02_adv_java.presentation.controllers.transferObjects.DroneDTO;
+import br.com.fiap.tdsq.checkpoint02_adv_java.presentation.controllers.transferObjects.MissionDTO;
 import br.com.fiap.tdsq.checkpoint02_adv_java.service.DroneService;
+import br.com.fiap.tdsq.checkpoint02_adv_java.service.MissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -32,6 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 public class DroneApiController {
 
     private final DroneService<Drone, UUID> droneService;
+
+    private final MissionService<Mission, UUID> missionService;
 
     @Operation(summary = "Listar todos os drones", method = "GET")
     @GetMapping
@@ -48,6 +53,33 @@ public class DroneApiController {
         return droneService.findById(id)
                 .map(drone -> ResponseEntity.ok(DroneDTO.fromEntity(drone)))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Listar todas as missões atribuídas a um drone", method = "GET")
+    @GetMapping("/{id}/missions")
+    public ResponseEntity<List<MissionDTO>> FindMissionsByDrone(@PathVariable UUID id) {
+        if (!droneService.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone not found");
+        }
+
+        return ResponseEntity.ok(missionService.findByDroneId(id)
+                .stream()
+                .map(MissionDTO::fromEntity)
+                .toList());
+    }
+
+    @Operation(summary = "Listar todas as missões futuras atribuídas a um drone", method = "GET")
+    @GetMapping("/{id}/future-missions")
+    public ResponseEntity<List<MissionDTO>> findFutureMissionsByDrone(@PathVariable UUID id) {
+        if (!droneService.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone not found");
+        }
+
+        return ResponseEntity
+                .ok(missionService.findFutureMissionsByDroneId(id)
+                        .stream()
+                        .map(MissionDTO::fromEntity)
+                        .toList());
     }
 
     @Operation(summary = "Cadastrar novo drone", method = "POST")
