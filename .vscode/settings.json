@@ -4,6 +4,7 @@
         "domainmodel",
         "fiap",
         "nullable",
+        "Springdoc",
         "tdsq"
     ],
     "java.compile.nullAnalysis.mode": "automatic"
