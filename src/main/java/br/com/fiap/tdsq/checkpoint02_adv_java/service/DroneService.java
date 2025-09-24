@@ -9,6 +9,8 @@ public interface DroneService<T, ID> {
 
     Optional<T> findById(ID id);
 
+    List<T> getDroneUsageRanking();
+
     T create(T drone);
 
     void removeById(ID id);

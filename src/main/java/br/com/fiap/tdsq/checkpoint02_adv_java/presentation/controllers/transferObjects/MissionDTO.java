@@ -5,9 +5,9 @@ import java.util.UUID;
 
 import br.com.fiap.tdsq.checkpoint02_adv_java.domainmodel.Drone;
 import br.com.fiap.tdsq.checkpoint02_adv_java.domainmodel.Mission;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,9 +29,13 @@ public class MissionDTO {
     private String location;
 
     @NotNull(message = "A data agendada deve ser informada")
-    @Future(message = "A data agendada deve estar no futuro")
     private LocalDate scheduledData;
 
+    @NotNull(message = "A duração da missão deve ser informada")
+    @Positive(message = "A duração deve ser um número positivo")
+    private int duration;
+
+    @NotNull(message = "O droneId deve ser informado")
     private UUID droneId;
 
     public static MissionDTO fromEntity(Mission mission) {
@@ -43,6 +47,7 @@ public class MissionDTO {
                 .description(mission.getDescription())
                 .location(mission.getLocation())
                 .scheduledData(mission.getScheduledData())
+                .duration(mission.getDuration())
                 .droneId(mission.getDrone().getId())
                 .build();
     }
@@ -56,6 +61,7 @@ public class MissionDTO {
                 .description(dto.getDescription())
                 .location(dto.getLocation())
                 .scheduledData(dto.getScheduledData())
+                .duration(dto.getDuration())
                 .drone(drone)
                 .build();
     }

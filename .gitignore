@@ -31,6 +31,5 @@ build/
 
 
 ### Project ###
-/data/*.db
-*.log
-*.gz
+/data
+/logs

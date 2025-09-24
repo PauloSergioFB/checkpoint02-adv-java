@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import br.com.fiap.tdsq.checkpoint02_adv_java.domainmodel.Drone;
 import br.com.fiap.tdsq.checkpoint02_adv_java.domainmodel.Mission;
+import br.com.fiap.tdsq.checkpoint02_adv_java.presentation.controllers.transferObjects.BatteryUsageReportDTO;
 import br.com.fiap.tdsq.checkpoint02_adv_java.presentation.controllers.transferObjects.DroneDTO;
 import br.com.fiap.tdsq.checkpoint02_adv_java.presentation.controllers.transferObjects.MissionDTO;
 import br.com.fiap.tdsq.checkpoint02_adv_java.service.DroneService;
@@ -59,7 +60,7 @@ public class DroneApiController {
     @GetMapping("/{id}/missions")
     public ResponseEntity<List<MissionDTO>> FindMissionsByDrone(@PathVariable UUID id) {
         if (!droneService.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone não encontrado.");
         }
 
         return ResponseEntity.ok(missionService.findByDroneId(id)
@@ -72,13 +73,37 @@ public class DroneApiController {
     @GetMapping("/{id}/future-missions")
     public ResponseEntity<List<MissionDTO>> findFutureMissionsByDrone(@PathVariable UUID id) {
         if (!droneService.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone não encontrado.");
         }
 
         return ResponseEntity
                 .ok(missionService.findFutureMissionsByDroneId(id)
                         .stream()
                         .map(MissionDTO::fromEntity)
+                        .toList());
+    }
+
+    @Operation(summary = "Gerar relatório de uso de bateria de um drone", method = "GET")
+    @GetMapping("/{id}/battery-report")
+    public ResponseEntity<BatteryUsageReportDTO> getBatteryUsageReport(@PathVariable UUID id) {
+        if (!droneService.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone não encontrado.");
+        }
+
+        double batteryUsageAverage = missionService.getBatteryUsageAverage(id);
+        return ResponseEntity.ok(BatteryUsageReportDTO.builder()
+                .droneId(id)
+                .batteryUsageAverage(batteryUsageAverage)
+                .build());
+    }
+
+    @Operation(summary = "Listar ranking de drones mais utilizados", method = "GET")
+    @GetMapping("/usage-ranking")
+    public ResponseEntity<List<DroneDTO>> getDroneUsageRanking() {
+        return ResponseEntity
+                .ok(droneService.getDroneUsageRanking()
+                        .stream()
+                        .map(DroneDTO::fromEntity)
                         .toList());
     }
 
@@ -93,21 +118,21 @@ public class DroneApiController {
     @PutMapping("/{id}")
     public ResponseEntity<DroneDTO> update(@PathVariable UUID id, @Valid @RequestBody DroneDTO droneDTO) {
         if (!droneService.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone não encontrado.");
         }
 
         Drone drone = DroneDTO.toEntity(droneDTO);
         drone.setId(id);
-        return new ResponseEntity<>(
-                DroneDTO.fromEntity(droneService.create(drone)),
-                HttpStatus.CREATED);
+
+        Drone updatedDrone = droneService.create(drone);
+        return ResponseEntity.ok(DroneDTO.fromEntity(updatedDrone));
     }
 
     @Operation(summary = "Remover drone por ID", method = "DELETE")
     @DeleteMapping
     public ResponseEntity<Void> deleteById(@RequestBody UUID id) {
         if (!droneService.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone não encontrado.");
         }
 
         droneService.removeById(id);

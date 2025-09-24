@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -52,15 +53,23 @@ public class MissionApiController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Buscar missões pela localização", method = "GET")
+    @GetMapping("/by-location")
+    public ResponseEntity<List<MissionDTO>> findAllByLocation(@RequestParam String location) {
+        return ResponseEntity.ok(missionService.findByLocation(location)
+                .stream()
+                .map(MissionDTO::fromEntity)
+                .toList());
+
+    }
+
     @Operation(summary = "Cadastrar nova missão", method = "POST")
     @PostMapping
     public ResponseEntity<MissionDTO> save(@Valid @RequestBody MissionDTO missionDTO) {
-        UUID droneId = missionDTO.getDroneId();
-        if (droneId != null && !droneService.existsById(droneId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drone not found");
-        }
+        Drone drone = droneService.findById(missionDTO.getDroneId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Drone não encontrado."));
 
-        Drone drone = droneService.findById(missionDTO.getDroneId()).orElse(null);
         Mission newMission = missionService.create(MissionDTO.toEntity(missionDTO, drone));
         return new ResponseEntity<>(MissionDTO.fromEntity(newMission), HttpStatus.CREATED);
     }

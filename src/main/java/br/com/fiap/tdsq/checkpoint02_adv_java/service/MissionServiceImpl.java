@@ -38,7 +38,30 @@ public class MissionServiceImpl implements MissionService<Mission, UUID> {
     }
 
     @Override
+    public List<Mission> findByLocation(String location) {
+        return missionRepository.findByLocation(location);
+    }
+
+    @Override
+    public double getBatteryUsageAverage(UUID droneId) {
+        List<Mission> droneMissions = findByDroneId(droneId);
+
+        if (droneMissions.isEmpty())
+            return 0;
+
+        return droneMissions.stream()
+                .mapToDouble(m -> (double) m.getDuration() / m.getDrone().getBatteryCapacity() * 100)
+                .average()
+                .orElse(0);
+    }
+
+    @Override
     public Mission create(Mission mission) {
+        if (mission.getDuration() > mission.getDrone().getBatteryCapacity()) {
+            throw new IllegalArgumentException(
+                    "A duração da missão não pode ser maior que a capacidade da bateria do drone.");
+        }
+
         return missionRepository.save(mission);
     }
 

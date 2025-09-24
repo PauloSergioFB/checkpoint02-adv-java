@@ -14,6 +14,10 @@ public interface MissionService<T, ID> {
 
     List<T> findFutureMissionsByDroneId(UUID droneId);
 
+    List<T> findByLocation(String location);
+
+    double getBatteryUsageAverage(UUID droneId);
+
     T create(T drone);
 
     void removeById(ID id);

@@ -38,6 +38,9 @@ public class Mission {
     @Column(name = "SCHEDULED_DATA", nullable = false)
     private @Setter @Getter LocalDate scheduledData;
 
+    @Column(name = "DURATION", nullable = false)
+    private @Setter @Getter int duration;
+
     @ManyToOne
     @JoinColumn(name = "DRONE_ID")
     private @Setter @Getter Drone drone;
@@ -61,6 +64,7 @@ public class Mission {
                 ", description=" + description +
                 ", location=" + location +
                 ", scheduledData=" + scheduledData +
+                ", duration=" + duration +
                 ", drone=" + drone +
                 "}";
     }

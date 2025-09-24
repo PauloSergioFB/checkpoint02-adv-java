@@ -7,8 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import br.com.fiap.tdsq.checkpoint02_adv_java.domainmodel.Mission;
 
-public interface MissionRepository extends JpaRepository<Mission, UUID>, MissionRepositoryCustom<Mission, UUID> {
+public interface MissionRepository extends JpaRepository<Mission, UUID>, MissionRepositoryCustom {
 
     List<Mission> findByDroneId(UUID droneId);
+
+    List<Mission> findByLocation(String location);
 
 }

@@ -28,6 +28,11 @@ public class DroneServiceImpl implements DroneService<Drone, UUID> {
     }
 
     @Override
+    public List<Drone> getDroneUsageRanking() {
+        return droneRepository.findDroneUsageRanking();
+    }
+
+    @Override
     public Drone create(Drone drone) {
         return droneRepository.save(drone);
     }
